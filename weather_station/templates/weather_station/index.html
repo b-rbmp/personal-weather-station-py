@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/indexpage.css' %}">
+{% endblock %}
+{% block content %}
+    {% if station_list %}
+    <div class="row row-cols-1 row-cols-xl-2 gx-xl-5 gy-xl-3 g-1 m-xl-5 my-3 mx-2 p-xl-3">
+        {% for station in station_list %}
+            <div class="col">
+                <div class="card station-card bg-primary bg-gradient text-white mb-3">
+                    <a href={% url 'station' station.pk %}>
+                        <div class="card-header lead py-3 fs-4">Estação: {{station.name}} <span class="fs-5 ms-1">({{station.city}} / {{station.country}})</span></div>
+                            <div class="card-body text-white">
+                                <div class="container">
+                                    <div class="row g-1 text-center lead py-2 fs-4">
+                                        <div class="col-md-3 col-6">
+                                            <div class="row">
+                                                <i class="bi bi-thermometer col-xl-2 col-12 text-center"></i><span class="col-xl-9 col-12 text-center">{{station.last_record.temperature|floatformat:1}}°C</span>
+                                            </div>  
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="row">
+                                                <i class="bi bi-sun col-xl-2 col-12 text-center"></i><span class="col-xl-9 col-12 text-center">{{station.last_record.light|floatformat:0}} lux</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="row">
+                                                <i class="bi bi-water col-xl-2 col-12 text-center"></i><span class="col-xl-9 col-12 text-center">{{station.last_record.humidity|floatformat:1}}%</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="row">
+                                                <i class="bi bi-arrows-collapse col-xl-2 col-12 text-center"></i><span class="col-xl-9 col-12 text-center">{{station.last_record.pressure|floatformat:0}}hPa</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <div class="card-footer lead" style="font-size: 1.1rem;">Ultima Atual: {{station.last_record.record_date|date:"d/m/Y - H:i:s"}}</div>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <div class="row m-5 text-center">
+            <h1>Nenhuma estação disponível</h1>
+        </div>
+    {% endif %}
+{% endblock %}
