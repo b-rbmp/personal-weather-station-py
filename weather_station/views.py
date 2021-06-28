@@ -1,12 +1,15 @@
 from django.shortcuts import redirect, render, get_list_or_404, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 import plotly.graph_objects as go
 import datetime
 import pandas as pd
+import json
 
-from .models import WeatherStation
+from .models import WeatherStation, WeatherRecord
 from .forms import DateHistoryForm
 
 
@@ -36,11 +39,16 @@ def station(request, station_id):
             date_to = form.cleaned_data['date_to']
             # redirect to a new URL:
             return HttpResponseRedirect(
-                reverse('history', args=(
-                    station_id,
-                    date_from.day, date_from.month, date_from.year,
-                    date_to.day, date_to.month, date_to.year,
-                )))
+                reverse('history',
+                        args=(
+                            station_id,
+                            date_from.day,
+                            date_from.month,
+                            date_from.year,
+                            date_to.day,
+                            date_to.month,
+                            date_to.year,
+                        )))
 
     # if a GET (or any other method) we'll create a blank form
     else:
@@ -175,9 +183,6 @@ def station(request, station_id):
     return render(request, 'weather_station/station_detail.html', context)
 
 
-# def update_sensor(request):
-
-
 def history(request, station_id, day_from, month_from, year_from, day_to,
             month_to, year_to):
     try:
@@ -191,12 +196,13 @@ def history(request, station_id, day_from, month_from, year_from, day_to,
                                                        hour=0,
                                                        minute=0,
                                                        second=0)).
-                filter(record_date__lte=datetime.datetime(day=day_to,
-                                                          month=month_to,
-                                                          year=year_to,
-                                                          hour=23,
-                                                          minute=59,
-                                                          second=59)).values()))
+                filter(
+                    record_date__lte=datetime.datetime(day=day_to,
+                                                       month=month_to,
+                                                       year=year_to,
+                                                       hour=23,
+                                                       minute=59,
+                                                       second=59)).values()))
 
         config = dict({
             'scrollZoom': False,
@@ -340,3 +346,34 @@ def history(request, station_id, day_from, month_from, year_from, day_to,
 
 def sobre(request):
     return render(request, 'weather_station/sobre.html')
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_sensor(request):
+    ''' Expects a Post Request with a JSON Object with the following information:
+        api_key = a api_key registrada no admin
+        record_date = ISO_FORMAT:'2011-11-04T00:05:23'
+        temperature = a temperatura
+        light = a luminosidade
+        humidity = humidade
+        pressure = pressão
+    '''
+    if request.method == "POST":
+        data = request.body.decode('utf-8')
+        json_data = json.loads(data)
+        try:
+            station = get_object_or_404(WeatherStation,
+                                        api_key=json_data['api_key'])
+        except (WeatherStation.DoesNotExist):
+            return HttpResponse('Invalid Station')
+        else:
+            new_record = WeatherRecord(
+                station=station,
+                record_date=datetime.datetime.fromisoformat(json_data['record_date']),
+                temperature=float(json_data['temperature']),
+                light=float(json_data['light']),
+                humidity=float(json_data['humidity']),
+                pressure=float(json_data['pressure']))
+            new_record.save()
+            return HttpResponse('OK')
+
