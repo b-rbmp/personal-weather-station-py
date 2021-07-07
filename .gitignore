@@ -14,3 +14,12 @@ env
 .vs
 .env
 db.sqlite3
+.env.dev
+.env.prod
+.env.prod.db
+Dockerfile
+Dockerfile.prod
+*/*.sh
+docker-compose.yml
+docker-compose.prod.yml
+nginx.conf

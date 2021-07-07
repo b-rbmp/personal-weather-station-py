@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/station_detail.css' %}">
+{% endblock %}
+{% block content %}
+    {% if station %}
+        <div class="container-xl">
+            <div class="row mt-xl-5 mt-4 text-center">
+                <p class="fs-1 lead">Estação: {{station.name}}</p>
+                <p class="fs-4 lead">({{station.city}} / {{station.country}})</p>
+            </div>
+            <div class="row my-xl-5 my-2 gy-xl-0 gy-3">
+                <div class="col-xl-3">
+                    <div class="card bg-success bg-gradient text-white py-3">
+                        <div class="row ms-3">
+                            <p class="lead fs-5">Temperatura</p>
+                        </div>
+                        <div class="row ms-3 me-2">
+                            <div class="d-flex">
+                                <div class="lead fs-1 fw-bold flex-fill float-start align-self-center">{{station.last_record.temperature|floatformat:1}} °C</div>
+                                <div class="flex-fill"><i class="bi bi-thermometer record-icon float-end"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3">
+                    <div class="card bg-warning bg-gradient text-white py-3">
+                        <div class="row ms-3">
+                            <p class="lead fs-5">Luminosidade</p>
+                        </div>
+                        <div class="row ms-3 me-2">
+                            <div class="d-flex">
+                                <div class="lead fs-1 fw-bold flex-fill float-start align-self-center">{{station.last_record.light|floatformat:0}} lux</div>
+                                <div class="flex-fill"><i class="bi bi-sun record-icon float-end"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3">
+                    <div class="card bg-info bg-gradient text-white py-3">
+                        <div class="row ms-3">
+                            <p class="lead fs-5">Umidade</p>
+                        </div>
+                        <div class="row ms-3 me-2">
+                            <div class="d-flex">
+                                <div class="lead fs-1 fw-bold flex-fill float-start align-self-center">{{station.last_record.humidity|floatformat:1}} %</div>
+                                <div class="flex-fill"><i class="bi bi-water record-icon float-end"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3">
+                    <div class="card bg-danger bg-gradient text-white py-3">
+                        <div class="row ms-3">
+                            <p class="lead fs-5">Pressão</p>
+                        </div>
+                        <div class="row ms-3 me-2">
+                            <div class="d-flex">
+                                <div class="lead fs-1 fw-bold flex-fill float-start align-self-center">{{station.last_record.pressure|floatformat:0}} hPa</div>
+                                <div class="flex-fill"><i class="bi bi-arrows-collapse record-icon float-end"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="lead" style="font-size: 1.1rem;">Ultima atualização: {{station.last_record.record_date|date:"d/m/Y - H:i:s"}}</p>
+            <div class="row mt-xl-5 mt-4 text-center">
+                <p class="fs-2 lead">Histórico das Últimas 24 horas:</p>
+            </div>
+            <div class="row mt-xl-2 mt-2 mb-4 gy-xl-2 gy-3 justify-content-center">
+                <div class="col-xl-6 col-12">
+                    <div class="card border border-success bg-gradient text-dark py-3">
+                        <div class="row ms-3">
+                            <p class="lead fs-5">Temperatura</p>
+                        </div>
+                        <div class="row ms-3 me-2">
+                            {% if graph_temperature %}
+                            <div style="width:600;height:500">
+                                {{ graph_temperature|safe }}
+                            </div>
+                            {% else %}
+                                <p>Não há nenhuma medição nas últimas 24 horas.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-12">
+                    <div class="card border border-warning text-dark py-3">
+                        <div class="row ms-3">
+                            <p class="lead fs-5">Luminosidade</p>
+                        </div>
+                        <div class="row ms-3 me-2">
+                            {% if graph_luminosity %}
+                            <div style="width:600;height:500">
+                                {{ graph_luminosity|safe }}
+                            </div>
+                            {% else %}
+                                <p>Não há nenhuma medição nas últimas 24 horas.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-12">
+                    <div class="card border border-info text-dark py-3">
+                        <div class="row ms-3">
+                            <p class="lead fs-5">Umidade</p>
+                        </div>
+                        <div class="row ms-3 me-2">
+                            {% if graph_humidity %}
+                            <div style="width:600;height:500">
+                                {{ graph_humidity|safe }}
+                            </div>
+                            {% else %}
+                                <p>Não há nenhuma medição nas últimas 24 horas.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-12">
+                    <div class="card border border-danger text-dark py-3">
+                        <div class="row ms-3">
+                            <p class="lead fs-5">Pressão</p>
+                        </div>
+                        <div class="row ms-3 me-2">
+                            {% if graph_pressure %}
+                            <div style="width:600;height:500">
+                                {{ graph_pressure|safe }}
+                            </div>
+                            {% else %}
+                                <p>Não há nenhuma medição nas últimas 24 horas.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-xl-5 mt-4 text-center">
+                <p class="fs-2 lead">Pesquisar histórico:</p>
+
+                <form method="POST" class="mb-3">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-info">Pesquisar</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="row mt-xl-5 mt-4 text-center">
+            <h1>Nenhuma estação encontrada com esse ID</h1>
+        </div>
+    {% endif %}
+{% endblock %}

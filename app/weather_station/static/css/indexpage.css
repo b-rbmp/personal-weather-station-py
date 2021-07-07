@@ -1,0 +1,15 @@
+.station-card a {
+    color: inherit;
+    text-decoration: none; /* no underline */
+    transition: 1s ease;
+}
+
+.station-card a:hover {
+    color: inherit;
+    transition: 1s ease;
+    background-color: rgba(2, 1, 65, 0.8) !important;
+    -webkit-transform: scale(1.08);
+    -ms-transform: scale(1.08);
+    transform: scale(1.08);
+}
+
